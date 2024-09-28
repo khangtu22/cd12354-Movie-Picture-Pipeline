@@ -22,11 +22,11 @@ jobs:
           pip install --user pipenv flake8
           pipenv install
         name: Install Dependencies
-        working-directory: backend
+        working-directory: starter/backend
 
       - run: pipenv run lint
         name: Run Linter
-        working-directory: backend
+        working-directory: starter/backend
 
   test:
     runs-on: ubuntu-latest
@@ -43,11 +43,11 @@ jobs:
           pip install --user pipenv
           pipenv install
         name: Install Dependencies
-        working-directory: backend
+        working-directory: starter/backend
 
       - run: pipenv run test
         name: Run Tests
-        working-directory: backend
+        working-directory: starter/backend
 
   build:
     needs: [lint, test]
@@ -65,12 +65,12 @@ jobs:
           pip install --user pipenv
           pipenv install
         name: Install Dependencies
-        working-directory: backend
+        working-directory: starter/backend
 
       - run: docker build -t mp-backend:latest .
         name: Build Docker Image
-        working-directory: backend
+        working-directory: starter/backend
 
       - run: docker run -d -p 5000:5000 --name mp-backend mp-backend
         name: Run Docker Container
-        working-directory: backend
+        working-directory: starter/backend

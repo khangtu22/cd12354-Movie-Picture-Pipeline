@@ -28,11 +28,11 @@ jobs:
 
       - run: cd frontend && npm ci
         name: Install Dependencies
-        working-directory: starter/backend
+        working-directory: starter/frontend
 
       - run: npm run lint -- --fix
         name: Run Linter
-        working-directory: starter/backend
+        working-directory: starter/frontend
 
   test:
     runs-on: ubuntu-latest
@@ -55,11 +55,11 @@ jobs:
 
       - run: cd frontend && npm ci
         name: Install Dependencies
-        working-directory: starter/backend
+        working-directory: starter/frontend
 
       - run: cd frontend && npm test
         name: Run Tests
-        working-directory: starter/backend
+        working-directory: starter/frontend
 
   build:
     needs: [lint, test]
@@ -83,7 +83,7 @@ jobs:
 
       - run: cd frontend && npm ci
         name: Install Dependencies
-        working-directory: starter/backend
+        working-directory: starter/frontend
 
       - run: echo "REACT_APP_MOVIE_API_URL=http://example.com" >> $GITHUB_ENV
         name: Set Environment Variable
@@ -101,11 +101,11 @@ jobs:
 
       - run: docker build -t ${{ steps.login-ecr.outputs.registry }}/frontend:${{ github.sha }} .
         name: Build Docker Image
-        working-directory: starter/backend
+        working-directory: starter/frontend
 
       - run: docker push ${{ steps.login-ecr.outputs.registry }}/frontend:${{ github.sha }}
         name: Push Docker Image
-        working-directory: starter/backend
+        working-directory: starter/frontend
 
       - run: aws eks update-kubeconfig --name cluster --region us-east-1
         name: Update Kubeconfig
@@ -114,4 +114,4 @@ jobs:
           kustomize edit set image frontend=${{ steps.login-ecr.outputs.registry }}/frontend:${{ github.sha }}
           kustomize build | kubectl apply -f -
         name: Update Kubernetes Deployment
-        working-directory: starter/backend/k8s
+        working-directory: starter/frontend/k8s
