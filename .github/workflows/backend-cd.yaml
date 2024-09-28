@@ -17,21 +17,16 @@ jobs:
         name: Setup Python
         with:
           python-version: '3.10'
-      - name: Print current directory
-        run: pwd
-      - name: Print ls
-        run: ls
 
       - run: |
           pip install --user pipenv flake8
-          cd backend
           pipenv install
         name: Install Dependencies
-        working-directory: ./backend
+        working-directory: starter/backend
 
       - run: pipenv run lint
         name: Run Linter
-        working-directory: ./backend
+        working-directory: starter/backend
 
   test:
     runs-on: ubuntu-latest
@@ -46,14 +41,13 @@ jobs:
 
       - run: |
           pip install --user pipenv
-          cd backend
           pipenv install
         name: Install Dependencies
-        working-directory: ./backend
+        working-directory: starter/backend
 
       - run: pipenv run test
         name: Run Tests
-        working-directory: ./backend
+        working-directory: starter/backend
 
   build:
     needs: [lint, test]
@@ -69,10 +63,9 @@ jobs:
 
       - run: |
           pip install --user pipenv
-          cd backend
           pipenv install
         name: Install Dependencies
-        working-directory: ./backend
+        working-directory: starter/backend
 
       - uses: aws-actions/configure-aws-credentials@v3
         name: Configure AWS Credentials
@@ -89,7 +82,7 @@ jobs:
           docker build -t ${{ steps.login-ecr.outputs.registry }}/backend:${{ github.sha }} .
           docker push ${{ steps.login-ecr.outputs.registry }}/backend:${{ github.sha }}
         name: Build and Push Docker Image
-        working-directory: ./backend
+        working-directory: starter/backend
 
       - run: aws eks update-kubeconfig --name cluster --region us-east-1
         name: Update Kubeconfig
