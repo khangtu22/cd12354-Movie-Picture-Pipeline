@@ -1,0 +1,117 @@
+name: frontend-cd
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout Code
+
+      - uses: actions/setup-node@v4
+        name: Setup Node.js
+        with:
+          node-version: latest
+
+      - uses: actions/cache@v3
+        name: Cache Node Modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - run: npm ci
+        name: Install Dependencies
+        working-directory: frontend
+
+      - run: npm run lint -- --fix
+        name: Run Linter
+        working-directory: frontend
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout Code
+
+      - uses: actions/setup-node@v4
+        name: Setup Node.js
+        with:
+          node-version: latest
+
+      - uses: actions/cache@v3
+        name: Cache Node Modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - run: npm ci
+        name: Install Dependencies
+        working-directory: frontend
+
+      - run: npm test
+        name: Run Tests
+        working-directory: frontend
+
+  build:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout Code
+
+      - uses: actions/setup-node@v4
+        name: Setup Node.js
+        with:
+          node-version: latest
+
+      - uses: actions/cache@v3
+        name: Cache Node Modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - run: npm ci
+        name: Install Dependencies
+        working-directory: frontend
+
+      - run: echo "REACT_APP_MOVIE_API_URL=http://example.com" >> $GITHUB_ENV
+        name: Set Environment Variable
+
+      - uses: aws-actions/configure-aws-credentials@v3
+        name: Configure AWS Credentials
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        name: Log in to Amazon ECR
+        id: login-ecr
+
+      - run: docker build -t ${{ steps.login-ecr.outputs.registry }}/frontend:${{ github.sha }} .
+        name: Build Docker Image
+        working-directory: frontend
+
+      - run: docker push ${{ steps.login-ecr.outputs.registry }}/frontend:${{ github.sha }}
+        name: Push Docker Image
+        working-directory: frontend
+
+      - run: aws eks update-kubeconfig --name cluster --region us-east-1
+        name: Update Kubeconfig
+
+      - run: |
+          kustomize edit set image frontend=${{ steps.login-ecr.outputs.registry }}/frontend:${{ github.sha }}
+          kustomize build | kubectl apply -f -
+        name: Update Kubernetes Deployment
+        working-directory: frontend/k8s
