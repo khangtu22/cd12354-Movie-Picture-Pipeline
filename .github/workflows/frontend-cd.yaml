@@ -26,7 +26,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci
+      - run: cd frontend && npm ci
         name: Install Dependencies
         working-directory: frontend
 
@@ -53,11 +53,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci
+      - run: cd frontend && npm ci
         name: Install Dependencies
         working-directory: frontend
 
-      - run: npm test
+      - run: cd frontend && npm test
         name: Run Tests
         working-directory: frontend
 
@@ -81,7 +81,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - run: npm ci
+      - run: cd frontend && npm ci
         name: Install Dependencies
         working-directory: frontend
 
