@@ -88,6 +88,12 @@ jobs:
       - run: echo "REACT_APP_MOVIE_API_URL=http://example.com" >> $GITHUB_ENV
         name: Set Environment Variable
 
+      - run: echo ${{ secrets.AWS_ACCESS_KEY_ID }}
+        name: cat secret
+
+      - run: echo ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        name: cat secret
+
       - uses: aws-actions/configure-aws-credentials@v3
         name: Configure AWS Credentials
         with:
