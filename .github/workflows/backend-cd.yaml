@@ -93,4 +93,4 @@ jobs:
           kustomize edit set image backend=${{ steps.login-ecr.outputs.registry }}/backend:${{ github.sha }}
           kustomize build | kubectl apply -f -
         name: Update Kubernetes
-        working-directory: backend/k8s
+        working-directory: starter/backend/k8s
