@@ -2,9 +2,9 @@ name: backend-ci
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [closed]
-    branches: [main]
+  push:
+    branches:
+      - main
 
 jobs:
   lint:
