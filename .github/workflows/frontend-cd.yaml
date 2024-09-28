@@ -85,7 +85,7 @@ jobs:
         name: Install Dependencies
         working-directory: starter/frontend
 
-      - run: echo "REACT_APP_MOVIE_API_URL=http://example.com" >> $GITHUB_ENV
+      - run: echo "REACT_APP_MOVIE_API_URL=http://localhost:5000" >> $GITHUB_ENV
         name: Set Environment Variable
 
       - uses: aws-actions/configure-aws-credentials@v3
